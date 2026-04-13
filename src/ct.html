@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCSIT Attendance Management System — DAVV Indore</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e17;--surface:#111827;--surface2:#1a2235;--border:#1e2d42;--accent:#00d4ff;--accent2:#ff6b35;--green:#00e676;--red:#ff1744;--yellow:#ffd600;--text:#e2e8f0;--muted:#64748b;--card:#0f1929;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+header{background:linear-gradient(135deg,#0a0e17,#0f1d35,#0a1628);border-bottom:1px solid var(--border);padding:0 2rem;position:sticky;top:0;z-index:100;}
+.header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#0066ff);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:14px;color:#fff;}
+.logo-text{font-family:'Space Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:1px;}
+.logo-sub{font-size:11px;color:var(--muted);}
+.header-date{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);background:var(--surface);padding:6px 12px;border-radius:6px;border:1px solid var(--border);}
+.container{max-width:1400px;margin:0 auto;padding:2rem;}
+.tabs{display:flex;gap:4px;background:var(--surface);border-radius:10px;padding:4px;margin-bottom:2rem;border:1px solid var(--border);}
+.tab{flex:1;padding:10px 16px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;}
+.tab.active{background:linear-gradient(135deg,var(--accent),#0066ff);color:#fff;font-weight:700;}
+.tab:hover:not(.active){color:var(--text);background:var(--surface2);}
+.panel{display:none;}.panel.active{display:block;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2rem;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.stat-card.blue::before{background:linear-gradient(90deg,var(--accent),#0066ff);}
+.stat-card.orange::before{background:linear-gradient(90deg,var(--accent2),#ff9800);}
+.stat-card.green::before{background:linear-gradient(90deg,var(--green),#00bcd4);}
+.stat-card.red::before{background:linear-gradient(90deg,var(--red),#ff5722);}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.stat-value{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;}
+.card-title{font-family:'Space Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+.card-title::before{content:'';width:3px;height:14px;background:var(--accent);border-radius:2px;}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+select,input{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+select:focus,input:focus{border-color:var(--accent);}
+.btn{padding:10px 20px;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#0066ff);color:#fff;}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.att-table{width:100%;border-collapse:collapse;}
+.att-table th{background:var(--surface);padding:10px 14px;text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);font-family:'Space Mono',monospace;}
+.att-table td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:14px;}
+.att-table tr:hover td{background:var(--surface2);}
+.roll{font-family:'Space Mono',monospace;font-size:12px;color:var(--muted);}
+.att-btns{display:flex;gap:6px;}
+.att-btn{width:36px;height:36px;border-radius:8px;border:2px solid transparent;font-weight:700;font-size:12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;}
+.att-btn.P{background:rgba(0,230,118,.1);border-color:rgba(0,230,118,.3);color:var(--green);}
+.att-btn.P.selected{background:var(--green);border-color:var(--green);color:#000;}
+.att-btn.A{background:rgba(255,23,68,.1);border-color:rgba(255,23,68,.3);color:var(--red);}
+.att-btn.A.selected{background:var(--red);border-color:var(--red);color:#fff;}
+.att-btn.L{background:rgba(255,214,0,.1);border-color:rgba(255,214,0,.3);color:var(--yellow);}
+.att-btn.L.selected{background:var(--yellow);border-color:var(--yellow);color:#000;}
+.badge{padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;font-family:'Space Mono',monospace;}
+.badge-dept{background:rgba(0,212,255,.1);color:var(--accent);border:1px solid rgba(0,212,255,.3);}
+.badge-section{background:rgba(255,107,53,.1);color:var(--accent2);border:1px solid rgba(255,107,53,.3);}
+.progress-wrap{background:var(--surface);border-radius:999px;height:6px;flex:1;}
+.progress-bar{height:100%;border-radius:999px;transition:width .5s;}
+.tt-grid{overflow-x:auto;}
+.tt-table{width:100%;border-collapse:collapse;min-width:900px;}
+.tt-table th{background:var(--surface);padding:10px 8px;font-size:11px;text-align:center;color:var(--muted);font-family:'Space Mono',monospace;border:1px solid var(--border);}
+.tt-table td{border:1px solid var(--border);padding:6px;vertical-align:top;font-size:11px;background:var(--card);}
+.tt-cell{padding:4px 6px;border-radius:6px;margin:2px 0;}
+.tt-cell.theory{background:rgba(0,212,255,.08);border-left:2px solid var(--accent);}
+.tt-cell.lab{background:rgba(255,107,53,.08);border-left:2px solid var(--accent2);}
+.tt-subject{font-size:10px;font-weight:600;color:var(--text);line-height:1.3;}
+.tt-teacher{font-size:9px;color:var(--muted);margin-top:2px;}
+.tt-room{font-family:'Space Mono',monospace;font-size:9px;color:var(--accent);}
+.day-cell{font-family:'Space Mono',monospace;font-size:11px;text-align:center;padding:8px;}
+.dept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;}
+.dept-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;cursor:pointer;transition:all .2s;}
+.dept-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.dept-name{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--accent);}
+.dept-full{font-size:12px;color:var(--muted);margin:4px 0 8px;}
+.dept-meta{display:flex;gap:6px;flex-wrap:wrap;}
+.notice{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.2);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--muted);margin-bottom:1rem;}
+.report-table{width:100%;border-collapse:collapse;}
+.report-table th{background:var(--surface);padding:10px 12px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-family:'Space Mono',monospace;border-bottom:1px solid var(--border);text-align:left;}
+.report-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;}
+.report-table tr:hover td{background:var(--surface2);}
+.danger-row td{background:rgba(255,23,68,.05) !important;}
+.schema-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;}
+.schema-table{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.schema-header{background:var(--surface);padding:10px 14px;font-family:'Space Mono',monospace;font-size:12px;color:var(--accent);}
+.schema-field{padding:8px 14px;border-top:1px solid var(--border);font-size:12px;display:flex;justify-content:space-between;}
+.field-name{color:var(--text);font-family:'Space Mono',monospace;font-size:11px;}
+.field-type{color:var(--muted);font-size:11px;}
+.pk{color:var(--yellow);}
+.fk{color:var(--accent2);}
+.success-msg{background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.3);color:var(--green);padding:10px 16px;border-radius:8px;font-size:13px;display:none;margin-top:1rem;}
+.flex-row{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">SC</div>
+      <div>
+        <div class="logo-text">SCSIT — DAVV INDORE</div>
+        <div class="logo-sub">Attendance Management System &nbsp;·&nbsp; Even Semester Jan–Jun 2026</div>
+      </div>
+    </div>
+    <div class="header-date" id="currentDate"></div>
+  </div>
+</header>
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('dashboard',this)">📊 Dashboard</button>
+    <button class="tab" onclick="switchTab('mark',this)">✅ Mark Attendance</button>
+    <button class="tab" onclick="switchTab('timetable',this)">📅 Timetable</button>
+    <button class="tab" onclick="switchTab('report',this)">📈 Reports</button>
+    <button class="tab" onclick="switchTab('database',this)">🗄️ DB Schema</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="panel active">
+    <div class="stats-grid">
+      <div class="stat-card blue"><div class="stat-label">Departments</div><div class="stat-value">10</div><div class="stat-sub">BCA, MCA, MSc CS/IT/CY, MTech, MBA, PGDCA</div></div>
+      <div class="stat-card orange"><div class="stat-label">Total Sections</div><div class="stat-value">22</div><div class="stat-sub">Even Semester 2026</div></div>
+      <div class="stat-card green"><div class="stat-label">Faculty</div><div class="stat-value">40+</div><div class="stat-sub">Regular + VF + JRF</div></div>
+      <div class="stat-card red"><div class="stat-label">Below 75%</div><div class="stat-value" id="belowCount">3</div><div class="stat-sub">Students at detention risk</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Department Overview — SCSIT Jan–Jun 2026</div>
+      <div class="dept-grid">
+        <div class="dept-card"><div class="dept-name">BCA</div><div class="dept-full">Bachelor of Computer Applications</div><div class="dept-meta"><span class="badge badge-section">2A</span><span class="badge badge-section">2B</span><span class="badge badge-section">4 A+B</span><span class="badge badge-section">6A</span><span class="badge badge-section">6B</span><span class="badge badge-section">8 Hons</span></div></div>
+        <div class="dept-card"><div class="dept-name">MCA</div><div class="dept-full">Master of Computer Applications</div><div class="dept-meta"><span class="badge badge-section">2A</span><span class="badge badge-section">2B</span><span class="badge badge-section">2 INT</span></div></div>
+        <div class="dept-card"><div class="dept-name">MSc CS</div><div class="dept-full">M.Sc. Computer Science</div><div class="dept-meta"><span class="badge badge-section">Sem 2</span><span class="badge badge-section">Sem 4</span></div></div>
+        <div class="dept-card"><div class="dept-name">MSc IT</div><div class="dept-full">M.Sc. Information Technology</div><div class="dept-meta"><span class="badge badge-section">Sem 4</span></div></div>
+        <div class="dept-card"><div class="dept-name">MSc CY</div><div class="dept-full">M.Sc. Cyber Security</div><div class="dept-meta"><span class="badge badge-section">Sem 2</span><span class="badge badge-section">Sem 4</span></div></div>
+        <div class="dept-card"><div class="dept-name">MTech</div><div class="dept-full">CS / NM&amp;IS / IA&amp;SE / Executive</div><div class="dept-meta"><span class="badge badge-section">CS 2</span><span class="badge badge-section">NM&amp;IS 2</span><span class="badge badge-section">IA&amp;SE 2</span><span class="badge badge-section">Exec 2</span><span class="badge badge-section">Exec 4</span></div></div>
+        <div class="dept-card"><div class="dept-name">MBA CM</div><div class="dept-full">MBA Computer Management</div><div class="dept-meta"><span class="badge badge-section">Sem 2</span><span class="badge badge-section">Sem 4</span></div></div>
+        <div class="dept-card"><div class="dept-name">PGDCA</div><div class="dept-full">Post Grad Diploma in CA</div><div class="dept-meta"><span class="badge badge-section">Sem 2</span></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">MCA 2nd Sem Batch A — Subject-wise Attendance</div>
+      <div style="display:grid;gap:14px;">
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;"><span>CS-4405 Database Management System <span style="color:var(--muted);font-size:11px;">Ms. Sunita Gaur</span></span><span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--green)">88%</span></div><div class="progress-wrap"><div class="progress-bar" style="width:88%;background:var(--green)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;"><span>CS-5613 Computer Networks <span style="color:var(--muted);font-size:11px;">Dr. Chaitali Uikey</span></span><span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--green)">82%</span></div><div class="progress-wrap"><div class="progress-bar" style="width:82%;background:var(--green)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;"><span>CS-5216 Design &amp; Analysis of Algorithms <span style="color:var(--muted);font-size:11px;">Dr. Anand Singh Jalal</span></span><span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--yellow)">76%</span></div><div class="progress-wrap"><div class="progress-bar" style="width:76%;background:var(--yellow)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;"><span>CS-4305 Software Engineering <span style="color:var(--muted);font-size:11px;">Dr. Archana Thakur</span></span><span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--red)">68%</span></div><div class="progress-wrap"><div class="progress-bar" style="width:68%;background:var(--red)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;"><span>CS-5617 Internet &amp; Web Technology <span style="color:var(--muted);font-size:11px;">Dr. Mohit K Varma</span></span><span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--green)">91%</span></div><div class="progress-wrap"><div class="progress-bar" style="width:91%;background:var(--green)"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MARK ATTENDANCE -->
+  <div id="mark" class="panel">
+    <div class="card">
+      <div class="card-title">Session Details</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Department</label>
+          <select id="deptSel" onchange="updateSections()">
+            <option value="">Select Department</option>
+            <option value="BCA">BCA</option><option value="MCA">MCA</option>
+            <option value="MSc_CS">MSc (CS)</option><option value="MSc_IT">MSc (IT)</option>
+            <option value="MSc_CY">MSc (CY)</option><option value="MTech_CS">MTech (CS)</option>
+            <option value="MTech_NM">MTech (NM &amp; IS)</option><option value="MTech_IA">MTech (IA &amp; SE)</option>
+            <option value="MBA">MBA (CM)</option><option value="PGDCA">PGDCA</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Section / Batch</label><select id="sectionSel" onchange="updateSubjects()"><option value="">Select Section</option></select></div>
+        <div class="form-group"><label>Subject</label><select id="subjectSel"><option value="">Select Subject</option></select></div>
+        <div class="form-group"><label>Date</label><input type="date" id="attDate"></div>
+        <div class="form-group"><label>Time Slot</label>
+          <select id="timeSel">
+            <option>9:30 AM – 10:30 AM</option><option>10:30 AM – 11:30 AM</option>
+            <option>11:30 AM – 12:30 PM</option><option>2:00 PM – 3:00 PM</option>
+            <option>3:00 PM – 4:00 PM</option><option>4:00 PM – 5:00 PM</option>
+          </select>
+        </div>
+        <div class="form-group" style="justify-content:flex-end;padding-top:22px;">
+          <button class="btn btn-primary" onclick="loadStudents()">📋 Load Students</button>
+        </div>
+      </div>
+    </div>
+    <div id="studentPanel" style="display:none">
+      <div class="card">
+        <div class="card-title">Mark Attendance</div>
+        <div class="notice">💡 <strong>P</strong> = Present &nbsp;|&nbsp; <strong>A</strong> = Absent &nbsp;|&nbsp; <strong>L</strong> = Leave. All students default to Present.</div>
+        <div class="flex-row" style="margin-bottom:1rem;">
+          <button class="btn btn-outline" onclick="markAll('P')">✅ Mark All Present</button>
+          <button class="btn btn-outline" onclick="markAll('A')">❌ Mark All Absent</button>
+          <span id="countDisplay" style="margin-left:auto;font-size:13px;color:var(--muted)"></span>
+        </div>
+        <table class="att-table">
+          <thead><tr><th>#</th><th>Roll No.</th><th>Student Name</th><th>P / A / L</th><th>Status</th></tr></thead>
+          <tbody id="studentTable"></tbody>
+        </table>
+        <div style="margin-top:1.5rem;display:flex;gap:1rem;">
+          <button class="btn btn-primary" onclick="saveAttendance()">💾 Save Attendance</button>
+          <button class="btn btn-outline" onclick="document.getElementById('studentPanel').style.display='none'">Cancel</button>
+        </div>
+        <div class="success-msg" id="saveMsg"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMETABLE -->
+  <div id="timetable" class="panel">
+    <div class="card">
+      <div class="card-title">View Timetable</div>
+      <div class="flex-row" style="margin-bottom:1.5rem;">
+        <div class="form-group" style="flex:1;max-width:320px;">
+          <label>Select Class</label>
+          <select id="ttSel" onchange="renderTimetable()">
+            <option value="mca2a">MCA 2nd Sem — Batch A</option>
+            <option value="mca2b">MCA 2nd Sem — Batch B</option>
+            <option value="bca2a">BCA 2nd Sem — Batch A</option>
+            <option value="bca4">BCA 4th Sem — Batch A+B</option>
+            <option value="bca6a">BCA 6th Sem — Batch A</option>
+            <option value="mtech_cs">MTech CS — 2nd Sem</option>
+          </select>
+        </div>
+      </div>
+      <div class="tt-grid" id="ttContainer"></div>
+    </div>
+  </div>
+
+  <!-- REPORTS -->
+  <div id="report" class="panel">
+    <div class="card">
+      <div class="card-title">Generate Report</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Department</label><select id="rptDept"><option>MCA</option><option>BCA</option><option>MSc (CS)</option><option>MTech</option></select></div>
+        <div class="form-group"><label>Section</label><select id="rptSection"><option>2nd Sem Batch A</option><option>2nd Sem Batch B</option><option>4th Sem</option></select></div>
+        <div class="form-group"><label>From Date</label><input type="date" id="rptFrom"></div>
+        <div class="form-group"><label>To Date</label><input type="date" id="rptTo"></div>
+        <div class="form-group" style="padding-top:22px;"><button class="btn btn-primary" onclick="generateReport()">📊 Generate Report</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">MCA 2nd Sem Batch A — Student-wise Attendance Report</div>
+      <div class="notice">🔴 Students below 75% are highlighted — may be detained per DAVV regulations.</div>
+      <div style="overflow-x:auto;">
+        <table class="report-table">
+          <thead><tr><th>Roll No.</th><th>Student Name</th><th>Total</th><th>Present</th><th>Absent</th><th>Leave</th><th>Attendance %</th><th>Status</th></tr></thead>
+          <tbody id="reportBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATABASE SCHEMA -->
+  <div id="database" class="panel">
+    <div class="notice">🗄️ Database schema designed specifically for SCSIT, DAVV — maps directly to your timetable structure with departments, batches, teachers, subjects, combined classes, and attendance.</div>
+    <div class="card">
+      <div class="card-title">Entity Relationship</div>
+      <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);line-height:2.2;padding:1rem;background:var(--surface);border-radius:8px;overflow-x:auto;">
+        SCSIT<br>
+        &nbsp;&nbsp;├── <span style="color:var(--accent)">departments</span> (BCA, MCA, MSc CS, MSc IT, MSc CY, MTech CS, MTech NM&amp;IS, MTech IA&amp;SE, MBA CM, PGDCA)<br>
+        &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span style="color:var(--accent2)">sections</span> (Batch A, Batch B, Batch INT, Batch A+B, Hons...)<br>
+        &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span style="color:var(--green)">students</span><br>
+        &nbsp;&nbsp;├── <span style="color:var(--accent)">teachers</span> (Regular | VF=Visiting Faculty | JRF=Junior Research Fellow)<br>
+        &nbsp;&nbsp;├── <span style="color:var(--accent)">subjects</span> (CS-4405, CS-5613, CS-5216, CS-5617...)<br>
+        &nbsp;&nbsp;├── <span style="color:var(--yellow)">teacher_assignments</span> (teacher + subject + section + room + day + time_slot)<br>
+        &nbsp;&nbsp;├── <span style="color:var(--accent2)">combined_classes</span> (© flag — e.g. BCA Hons 8 + MCA INT 2nd)<br>
+        &nbsp;&nbsp;└── <span style="color:var(--red)">attendance</span> ⭐ (student + assignment + date + P/A/L + marked_by)
+      </div>
+    </div>
+    <div class="schema-grid">
+      <div class="schema-table">
+        <div class="schema-header">📁 departments</div>
+        <div class="schema-field"><span class="field-name pk">dept_id PK</span><span class="field-type">INT AUTO_INCREMENT</span></div>
+        <div class="schema-field"><span class="field-name">dept_code</span><span class="field-type">VARCHAR(20) UNIQUE</span></div>
+        <div class="schema-field"><span class="field-name">dept_name</span><span class="field-type">VARCHAR(100)</span></div>
+        <div class="schema-field"><span class="field-name">program_type</span><span class="field-type">ENUM(UG, PG, PhD)</span></div>
+        <div class="schema-field"><span class="field-name">duration_years</span><span class="field-type">INT</span></div>
+      </div>
+      <div class="schema-table">
+        <div class="schema-header">📁 sections</div>
+        <div class="schema-field"><span class="field-name pk">section_id PK</span><span class="field-type">INT AUTO_INCREMENT</span></div>
+        <div class="schema-field"><span class="field-name fk">dept_id FK</span><span class="field-type">→ departments</span></div>
+        <div class="schema-field"><span class="field-name">batch_name</span><span class="field-type">VARCHAR(20) 'A','B','INT'</span></div>
+        <div class="schema-field"><span class="field-name">semester</span><span class="field-type">INT</span></div>
+        <div class="schema-field"><span class="field-name">academic_year</span><span class="field-type">VARCHAR(10) '2025-26'</span></div>
+        <div class="schema-field"><span class="field-name">default_room</span><span class="field-type">VARCHAR(20) 'LT-01'</span></div>
+      </div>
+      <div class="schema-table">
+        <div class="schema-header">📁 teachers</div>
+        <div class="schema-field"><span class="field-name pk">teacher_id PK</span><span class="field-type">INT AUTO_INCREMENT</span></div>
+        <div class="schema-field"><span class="field-name fk">dept_id FK</span><span class="field-type">→ departments</span></div>
+        <div class="schema-field"><span class="field-name">name</span><span class="field-type">VARCHAR(100)</span></div>
+        <div class="schema-field"><span class="field-name">email</span><span class="field-type">VARCHAR(100) UNIQUE</span></div>
+        <div class="schema-field"><span class="field-name">designation</span><span class="field-type">VARCHAR(50)</span></div>
+        <div class="schema-field"><span class="field-name">teacher_type</span><span class="field-type">ENUM(Regular, VF, JRF)</span></div>
+      </div>
+      <div class="schema-table">
+        <div class="schema-header">📁 students</div>
+        <div class="schema-field"><span class="field-name pk">student_id PK</span><span class="field-type">INT AUTO_INCREMENT</span></div>
+        <div class="schema-field"><span class="field-name fk">section_id FK</span><span class="field-type">→ sections</span></div>
+        <div class="schema-field"><span class="field-name">roll_no</span><span class="field-type">VARCHAR(20) UNIQUE</span></div>
+        <div class="schema-field"><span class="field-name">name</span><span class="field-type">VARCHAR(100)</span></div>
+        <div class="schema-field"><span class="field-name">email</span><span class="field-type">VARCHAR(100)</span></div>
+        <div class="schema-field"><span class="field-name">admission_year</span><span class="field-type">YEAR</span></div>
+      </div>
+      <div class="schema-table">
+        <div class="schema-header">📁 subjects</div>
+        <div class="schema-field"><span class="field-name pk">subject_id PK</span><span class="field-type">INT AUTO_INCREMENT</span></div>
+        <div class="schema-field"><span class="field-name fk">dept_id FK</span><span class="field-type">→ departments</span></div>
+        <div class="schema-field"><span class="field-name">subject_code</span><span class="field-type">VARCHAR(20) 'CS-4405'</span></div>
+        <div class="schema-field"><span class="field-name">subject_name</span><span class="field-type">VARCHAR(150)</span></div>
+        <div class="schema-field"><span class="field-name">type</span><span class="field-type">ENUM(Theory, Lab, Elective)</span></div>
+        <div class="schema-field"><span class="field-name">credits</span><span class="field-type">INT DEFAULT 3</span></div>
+      </div>
+      <div class="schema-table">
+        <div class="schema-header">📁 teacher_assignments</div>
+        <div class="schema-field"><span class="field-name pk">assign_id PK</span><span class="field-type">INT AUTO_INCREMENT</span></div>
+        <div class="schema-field"><span class="field-name fk">teacher_id FK</span><span class="field-type">→ teachers</span></div>
+        <div class="schema-field"><span class="field-name fk">subject_id FK</span><span class="field-type">→ subjects</span></div>
+        <div class="schema-field"><span class="field-name fk">section_id FK</span><span class="field-type">→ sections</span></div>
+        <div class="schema-field"><span class="field-name">day_of_week</span><span class="field-type">ENUM(Mon..Sun)</span></div>
+        <div class="schema-field"><span class="field-name">time_slot</span><span class="field-type">VARCHAR(30)</span></div>
+        <div class="schema-field"><span class="field-name">room</span><span class="field-type">VARCHAR(20) 'LAB-05'</span></div>
+        <div class="schema-field"><span class="field-name">is_combined</span><span class="field-type">BOOLEAN — © flag</span></div>
+      </div>
+      <div class="schema-table">
+        <div class="schema-header">📁 combined_classes</div>
+        <div class="schema-field"><span class="field-name pk">combo_id PK</span><span class="field-type">INT AUTO_INCREMENT</span></div>
+        <div class="schema-field"><span class="field-name fk">primary_assign FK</span><span class="field-type">→ teacher_assignments</span></div>
+        <div class="schema-field"><span class="field-name fk">combined_section FK</span><span class="field-type">→ sections</span></div>
+        <div class="schema-field"><span class="field-name" style="font-size:10px;color:var(--muted)">e.g. BCA(Hons)8 + MCA INT 2; MSc(CS)2 + MTech 2</span></div>
+      </div>
+      <div class="schema-table">
+        <div class="schema-header">📁 attendance ⭐ CORE TABLE</div>
+        <div class="schema-field"><span class="field-name pk">attend_id PK</span><span class="field-type">INT AUTO_INCREMENT</span></div>
+        <div class="schema-field"><span class="field-name fk">student_id FK</span><span class="field-type">→ students</span></div>
+        <div class="schema-field"><span class="field-name fk">assign_id FK</span><span class="field-type">→ teacher_assignments</span></div>
+        <div class="schema-field"><span class="field-name">date</span><span class="field-type">DATE NOT NULL</span></div>
+        <div class="schema-field"><span class="field-name">status</span><span class="field-type">ENUM('P','A','L')</span></div>
+        <div class="schema-field"><span class="field-name fk">marked_by FK</span><span class="field-type">→ teachers</span></div>
+        <div class="schema-field"><span class="field-name">marked_at</span><span class="field-type">TIMESTAMP DEFAULT NOW()</span></div>
+        <div class="schema-field"><span class="field-name" style="font-size:10px;color:var(--yellow)">UNIQUE(student_id, assign_id, date)</span></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1.5rem;">
+      <div class="card-title">Key SQL Queries for SCSIT DAVV</div>
+      <div style="font-family:'Space Mono',monospace;font-size:11px;line-height:1.9;color:var(--muted);background:var(--surface);padding:1rem;border-radius:8px;overflow-x:auto;white-space:pre">
+<span style="color:var(--accent)">-- 1. Attendance % per student per subject (MCA 2nd Sem Batch A)</span>
+SELECT s.roll_no, s.name, sub.subject_code, sub.subject_name,
+       COUNT(*) AS total, SUM(a.status='P') AS present,
+       ROUND(SUM(a.status='P') * 100.0 / COUNT(*), 2) AS attendance_pct
+FROM attendance a
+JOIN students s ON a.student_id = s.student_id
+JOIN teacher_assignments ta ON a.assign_id = ta.assign_id
+JOIN subjects sub ON ta.subject_id = sub.subject_id
+JOIN sections sec ON ta.section_id = sec.section_id
+WHERE sec.batch_name = 'A' AND sec.semester = 2
+GROUP BY s.student_id, sub.subject_id ORDER BY attendance_pct ASC;
+
+<span style="color:var(--accent)">-- 2. Students below 75% (Detention candidates)</span>
+SELECT s.roll_no, s.name, sub.subject_name,
+       ROUND(SUM(a.status='P') * 100.0 / COUNT(*), 2) AS pct
+FROM attendance a
+JOIN students s ON a.student_id = s.student_id
+JOIN teacher_assignments ta ON a.assign_id = ta.assign_id
+JOIN subjects sub ON ta.subject_id = sub.subject_id
+GROUP BY s.student_id, sub.subject_id HAVING pct &lt; 75 ORDER BY pct;
+
+<span style="color:var(--accent)">-- 3. Teacher-wise classes conducted</span>
+SELECT t.name, t.teacher_type, COUNT(DISTINCT ta.subject_id) AS subjects,
+       COUNT(DISTINCT ta.section_id) AS sections,
+       COUNT(a.attend_id) AS classes_conducted
+FROM teachers t
+LEFT JOIN teacher_assignments ta ON t.teacher_id = ta.teacher_id
+LEFT JOIN attendance a ON ta.assign_id = a.assign_id AND a.marked_by = t.teacher_id
+GROUP BY t.teacher_id ORDER BY classes_conducted DESC;
+
+<span style="color:var(--accent)">-- 4. Today's attendance for a section</span>
+SELECT s.roll_no, s.name, sub.subject_code, a.status
+FROM attendance a
+JOIN students s ON a.student_id = s.student_id
+JOIN teacher_assignments ta ON a.assign_id = ta.assign_id
+JOIN subjects sub ON ta.subject_id = sub.subject_id
+WHERE a.date = CURDATE() AND ta.section_id = 7 ORDER BY s.roll_no;
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SECTIONS={BCA:['2nd Sem Batch A','2nd Sem Batch B','4th Sem Batch A+B','6th Sem Batch A','6th Sem Batch B','8th Sem (Hons)'],MCA:['2nd Sem Batch A','2nd Sem Batch B','2nd Sem Batch INT'],MSc_CS:['2nd Sem','4th Sem'],MSc_IT:['4th Sem'],MSc_CY:['2nd Sem','4th Sem'],MTech_CS:['2nd Sem'],MTech_NM:['2nd Sem (NM & IS)'],MTech_IA:['2nd Sem (IA & SE)'],MBA:['2nd Sem','4th Sem'],PGDCA:['2nd Sem']};
+const SUBJECTS={'MCA_2nd Sem Batch A':['CS-4305 Software Engineering — Dr. Archana Thakur','CS-5613 Computer Networks — Dr. Chaitali Uikey','CS-4405 Database Management System — Ms. Sunita Gaur','CS-5216 Design & Analysis of Algorithms — Dr. Anand Singh Jalal','CS-5617 Internet & Web Technology — Dr. Mohit K Varma','LAB CS-5617 IWT — Dr. Mohit K Varma','LAB CS-5216 DAA — Dr. Anand Singh Jalal','LAB CS-4405 DBMS — Ms. Sunita Gaur'],'MCA_2nd Sem Batch B':['CS-5613 Computer Networks — Dr. Preeti Saxena','CS-4305 Software Engineering — Dr. Ugrasen Suman','CS-5216 DAA — Dr. Deepak Abhyankar','CS-5617 IWT — Dr. Ajay Tiwari','CS-4405 DBMS — Dr. Tarjani Sevak','LAB CS-5617 IWT — Ms. Anshika Jain (JRF)','LAB CS-4405 DBMS — Dr. Tarjani Sevak'],'MCA_2nd Sem Batch INT':['CS-5617 IWT — Mr. Chetan Awasthi','CS-4405 DBMS — Dr. Tarjani Sevak','CS-5216 DAA — Dr. Chaitali Uikey','CS-4305 SE — Dr. Nitin Uikey','CS-5613 CN — Ms. Minal Nagar (VF)'],'BCA_2nd Sem Batch A':['CS-1501 Operating System — Mr. K.L. Suryawanshi','CS-3208 OOP Through C++ — Dr. Deepak Abhyankar','CS-1102 Mathematics-II — Ms. Shivani Khare (VF)','CS-2020 Electronic Circuits — Mr. Pankaj Jagtap','IC-1905 English Language — Dr. Preeti Koolwal (VF)','IC-2927 Environmental Awareness — Dr. Monika (VF)','LAB CS-1501 OS — Dr. Nitin Uikey','LAB CS-3208 OOP C++ — Dr. Deepak Abhyankar','LAB CS-2020 Elect. Circuits — Mr. Pankaj Jagtap'],'BCA_4th Sem Batch A+B':['CS-2402 Intro to DBMS — Mr. Aryan Shinde (VF)','CS-3210 JAVA Programming — Dr. Ajay Tiwari','CS-2004 Computer Architecture — Dr. Anand More','CS-2517 Advanced ICT Tools — Ms. Leena Verma (VF)','IC-2911 Communication Skills — Ms. Riya Sadawana (VF)','LAB CS-3210 JAVA — Mr. K.L. Suryawanshi','LAB CS-2517 ICT Tools — Ms. Sunita Gaur']};
+const STUDENTS={'MCA_2nd Sem Batch A':[{roll:'MCA2024001',name:'Aarav Sharma'},{roll:'MCA2024002',name:'Priya Patel'},{roll:'MCA2024003',name:'Rahul Verma'},{roll:'MCA2024004',name:'Sneha Joshi'},{roll:'MCA2024005',name:'Karan Malhotra'},{roll:'MCA2024006',name:'Divya Gupta'},{roll:'MCA2024007',name:'Amit Soni'},{roll:'MCA2024008',name:'Pooja Mishra'},{roll:'MCA2024009',name:'Vikram Yadav'},{roll:'MCA2024010',name:'Nisha Tiwari'},{roll:'MCA2024011',name:'Siddharth Jain'},{roll:'MCA2024012',name:'Ananya Dubey'}],'BCA_2nd Sem Batch A':[{roll:'BCA2024001',name:'Ravi Kumar'},{roll:'BCA2024002',name:'Swati Singh'},{roll:'BCA2024003',name:'Mohit Pandey'},{roll:'BCA2024004',name:'Kajal Sharma'},{roll:'BCA2024005',name:'Arjun Chouhan'},{roll:'BCA2024006',name:'Neha Yadav'},{roll:'BCA2024007',name:'Harsh Tiwari'},{roll:'BCA2024008',name:'Shivani Patel'}]};
+const DEF_STUDENTS=[{roll:'STD001',name:'Student One'},{roll:'STD002',name:'Student Two'},{roll:'STD003',name:'Student Three'},{roll:'STD004',name:'Student Four'},{roll:'STD005',name:'Student Five'}];
+
+const TT={
+mca2a:{title:'MCA 2nd Semester — Batch A (LT-01)',slots:['10:30–11:30','11:30–12:30','12:30–1:30','LUNCH','2:00–3:00','3:00–4:00','4:00–5:00'],days:{Monday:[{s:'CS-4305 Software Engg',t:'Dr. Archana Thakur',r:'LT-01',tp:'theory'},{s:'CS-5613 Computer Networks',t:'Dr. Chaitali Uikey',r:'LT-01',tp:'theory'},{s:'CS-4405 DBMS',t:'Ms. Sunita Gaur',r:'LT-01',tp:'theory'},null,{s:'CS-5216 DAA',t:'Dr. Anand Singh Jalal',r:'LT-01',tp:'theory'},null,null],Tuesday:[{s:'CS-4405 DBMS',t:'Ms. Sunita Gaur',r:'LT-01',tp:'theory'},{s:'CS-5613 CN',t:'Dr. Chaitali Uikey',r:'LT-01',tp:'theory'},{s:'CS-5216 DAA',t:'Dr. Anand Singh Jalal',r:'LT-01',tp:'theory'},null,{s:'LAB CS-5617 IWT',t:'Dr. Mohit K Varma',r:'LAB-05',tp:'lab'},{s:'LAB CS-5617 IWT',t:'Dr. Mohit K Varma',r:'LAB-05',tp:'lab'},null],Wednesday:[{s:'CS-5216 DAA',t:'Dr. Anand Singh Jalal',r:'LT-01',tp:'theory'},{s:'CS-5617 IWT',t:'Dr. Mohit K Varma',r:'LT-01',tp:'theory'},{s:'CS-4305 SE',t:'Dr. Archana Thakur',r:'LT-01',tp:'theory'},null,{s:'LAB CS-5216 DAA',t:'Dr. Anand Singh Jalal',r:'LAB-05',tp:'lab'},{s:'LAB CS-5216 DAA',t:'Dr. Anand Singh Jalal',r:'LAB-05',tp:'lab'},null],Thursday:[{s:'CS-4405 DBMS',t:'Ms. Sunita Gaur',r:'LT-01',tp:'theory'},{s:'CS-5617 IWT',t:'Dr. Mohit K Varma',r:'LT-01',tp:'theory'},{s:'CS-4305 SE',t:'Dr. Archana Thakur',r:'LT-01',tp:'theory'},null,{s:'LAB CS-5617 IWT',t:'Dr. Mohit K Varma',r:'LAB-05',tp:'lab'},{s:'LAB CS-5617 IWT',t:'Dr. Mohit K Varma',r:'LAB-05',tp:'lab'},null],Friday:[{s:'CS-5617 IWT',t:'Dr. Mohit K Varma',r:'LT-01',tp:'theory'},{s:'CS-5613 CN',t:'Dr. Chaitali Uikey',r:'LT-01',tp:'theory'},{s:'CS-4405 DBMS',t:'Ms. Sunita Gaur',r:'LT-01',tp:'theory'},null,{s:'CS-4305 SE',t:'Dr. Archana Thakur',r:'LT-01',tp:'theory'},{s:'LAB CS-4405 DBMS',t:'Ms. Sunita Gaur',r:'LAB-05',tp:'lab'},{s:'LAB CS-4405 DBMS',t:'Ms. Sunita Gaur',r:'LAB-05',tp:'lab'}],Saturday:[{s:'CS-5617 IWT',t:'Dr. Mohit K Varma',r:'LT-01',tp:'theory'},{s:'CS-5613 CN',t:'Dr. Chaitali Uikey',r:'LT-01',tp:'theory'},{s:'CS-5216 DAA',t:'Dr. Anand Singh Jalal',r:'LT-01',tp:'theory'},null,{s:'LAB CS-4405 DBMS',t:'Ms. Sunita Gaur',r:'LAB-05',tp:'lab'},{s:'LAB CS-4405 DBMS',t:'Ms. Sunita Gaur',r:'LAB-05',tp:'lab'},null]}},
+bca2a:{title:'BCA 2nd Semester — Batch A (G-01)',slots:['9:30–10:30','10:30–11:30','11:30–12:30','12:30–1:30','2:00–3:00','3:00–4:00','4:00–5:00'],days:{Monday:[null,null,{s:'LAB CS-1501 OS',t:'Dr. Nitin Uikey',r:'LAB-05',tp:'lab'},{s:'LAB CS-1501',t:'Dr. Nitin Uikey',r:'LAB-05',tp:'lab'},{s:'IC-1905 English',t:'Dr. Preeti Koolwal (VF)',r:'G-01',tp:'theory'},{s:'CS-3208 OOP C++',t:'Dr. Deepak Abhyankar',r:'G-01',tp:'theory'},{s:'CS-1102 Maths-II',t:'Ms. Shivani Khare (VF)',r:'G-01',tp:'theory'}],Tuesday:[null,null,{s:'LAB CS-1501 OS',t:'Dr. Nitin Uikey',r:'LAB-05',tp:'lab'},{s:'LAB CS-1501',t:'Dr. Nitin Uikey',r:'LAB-05',tp:'lab'},{s:'IC-2927 Env. Awareness',t:'Dr. Monika (VF)',r:'G-01',tp:'theory'},{s:'CS-3208 OOP C++',t:'Dr. Deepak Abhyankar',r:'G-01',tp:'theory'},{s:'CS-1501 OS',t:'Mr. K.L. Suryawanshi',r:'G-01',tp:'theory'}],Wednesday:[null,null,null,null,{s:'IC-1905 English',t:'Dr. Preeti Koolwal (VF)',r:'G-01',tp:'theory'},{s:'CS-3208 OOP C++',t:'Dr. Deepak Abhyankar',r:'G-01',tp:'theory'},null],Thursday:[null,null,{s:'LAB CS-3208 OOP C++',t:'Dr. Deepak Abhyankar',r:'LAB-05',tp:'lab'},{s:'LAB CS-3208',t:'Dr. Deepak Abhyankar',r:'LAB-05',tp:'lab'},{s:'CS-2020 Elect. Circuits',t:'Mr. Pankaj Jagtap',r:'G-01',tp:'theory'},{s:'CS-3208 OOP C++',t:'Dr. Deepak Abhyankar',r:'G-01',tp:'theory'},{s:'CS-1102 Maths-II',t:'Ms. Shivani Khare (VF)',r:'G-01',tp:'theory'}],Friday:[null,null,{s:'LAB CS-3208 OOP C++',t:'Dr. Deepak Abhyankar',r:'LAB-05',tp:'lab'},{s:'LAB CS-3208',t:'Dr. Deepak Abhyankar',r:'LAB-05',tp:'lab'},{s:'IC-2927 Env. Awareness',t:'Dr. Monika (VF)',r:'G-01',tp:'theory'},{s:'CS-1102 Maths-II',t:'Ms. Shivani Khare (VF)',r:'G-01',tp:'theory'},{s:'CS-1501 OS',t:'Mr. K.L. Suryawanshi',r:'G-01',tp:'theory'}],Saturday:[null,null,{s:'LAB CS-2020 Elec. Circuits',t:'Mr. Pankaj Jagtap',r:'H/W Lab',tp:'lab'},{s:'LAB CS-2020',t:'Mr. Pankaj Jagtap',r:'H/W Lab',tp:'lab'},{s:'CS-2020 Elect. Circuits',t:'Mr. Pankaj Jagtap',r:'G-01',tp:'theory'},{s:'CS-1102 Maths-II',t:'Ms. Shivani Khare (VF)',r:'G-01',tp:'theory'},null]}},
+bca4:{title:'BCA 4th Semester — Batch A+B (LT-04)',slots:['10:30–11:30','11:30–12:30','12:30–1:30','LUNCH','2:00–3:00','3:00–4:00','4:00–5:00'],days:{Monday:[{s:'CS-2402 Intro to DBMS',t:'Mr. Aryan Shinde (VF)',r:'LT-04',tp:'theory'},{s:'CS-3210 JAVA Programming',t:'Dr. Ajay Tiwari',r:'LT-04',tp:'theory'},{s:'CS-2004 Computer Arch.',t:'Dr. Anand More',r:'LT-04',tp:'theory'},null,{s:'LAB CS-3210 JAVA',t:'Mr. K.L. Suryawanshi',r:'LAB-08',tp:'lab'},{s:'LAB CS-3210 JAVA',t:'Mr. K.L. Suryawanshi',r:'LAB-08',tp:'lab'},null],Tuesday:[{s:'CS-2402 Intro to DBMS',t:'Mr. Aryan Shinde (VF)',r:'LT-04',tp:'theory'},{s:'IC-2911 Communication Skills',t:'Ms. Riya Sadawana (VF)',r:'LT-04',tp:'theory'},{s:'CS-2004 Computer Arch.',t:'Dr. Anand More',r:'LT-04',tp:'theory'},null,{s:'LAB CS-2517 Adv. ICT Tools',t:'Ms. Sunita Gaur',r:'LAB-08',tp:'lab'},{s:'LAB CS-2517 ICT Tools',t:'Ms. Sunita Gaur',r:'LAB-08',tp:'lab'},null],Wednesday:[{s:'IC-2911 Comm. Skills',t:'Ms. Riya Sadawana (VF)',r:'LT-04',tp:'theory'},{s:'CS-3210 JAVA',t:'Dr. Ajay Tiwari',r:'LT-04',tp:'theory'},{s:'CS-2517 Adv. ICT Tools',t:'Ms. Leena Verma (VF)',r:'LT-04',tp:'theory'},null,{s:'LAB CS-3210 JAVA',t:'Mr. Pankaj Jagtap',r:'LAB-08',tp:'lab'},{s:'LAB CS-3210 JAVA',t:'Mr. Pankaj Jagtap',r:'LAB-08',tp:'lab'},null],Thursday:[{s:'CS-3210 JAVA',t:'Dr. Ajay Tiwari',r:'LT-04',tp:'theory'},{s:'IC-2911 Comm. Skills',t:'Ms. Riya Sadawana (VF)',r:'LT-04',tp:'theory'},null,null,{s:'LAB CS-2004 Comp. Arch.',t:'Dr. Anand More',r:'LAB-08',tp:'lab'},{s:'LAB CS-2004 Comp. Arch.',t:'Dr. Anand More',r:'LAB-08',tp:'lab'},null],Friday:[{s:'CS-3210 JAVA',t:'Dr. Ajay Tiwari',r:'LT-04',tp:'theory'},{s:'CS-2517 Adv. ICT Tools',t:'Ms. Leena Verma (VF)',r:'LT-04',tp:'theory'},null,null,{s:'LAB CS-2402 DBMS',t:'Mr. Aryan Shinde (VF)',r:'LAB-08',tp:'lab'},{s:'LAB CS-2402 DBMS',t:'Mr. Aryan Shinde (VF)',r:'LAB-08',tp:'lab'},null],Saturday:[{s:'IC-2911 Comm. Skills',t:'Ms. Riya Sadawana (VF)',r:'LT-04',tp:'theory'},{s:'CS-2517 ICT Tools',t:'Ms. Leena Verma (VF)',r:'LT-04',tp:'theory'},null,null,null,null,null]}},
+mtech_cs:{title:'MTech CS — 2nd Semester (MMT-03)',slots:['9:30–10:30','10:30–11:30','11:30–12:30','12:30–1:30','2:00–3:00','3:00–4:00','4:00–5:00'],days:{Monday:[null,{s:'CS-6226 Adv. Algorithms',t:'Dr. Anand Singh Jalal',r:'MMT-03',tp:'theory'},{s:'CS-5319/CS-5618 Elective',t:'(Elective)',r:'MMT-03',tp:'theory'},{s:'CS-6313 SW Testing & QA',t:'Dr. Sanjay Tanwani',r:'MMT-03',tp:'theory'},{s:'CS-6718 Big Data Analytics',t:'Ms. Sunita Gaur',r:'MMT-03',tp:'theory'},{s:'LAB CS-5319 Agile SE',t:'Dr. Nitin Uikey ©',r:'LAB-09',tp:'lab'},{s:'LAB CS-5319 Agile SE',t:'Dr. Nitin Uikey ©',r:'LAB-09',tp:'lab'}],Tuesday:[null,{s:'CS-6226 Adv. Algorithms',t:'Dr. Anand Singh Jalal',r:'MMT-03',tp:'theory'},{s:'CS-5319/CS-5618 Elective',t:'(Elective)',r:'MMT-03',tp:'theory'},{s:'CS-6313 SW Testing & QA',t:'Dr. Sanjay Tanwani',r:'MMT-03',tp:'theory'},{s:'LAB CS-6518 Cloud Computing',t:'Dr. Shraddha Masih',r:'LAB-01',tp:'lab'},{s:'LAB CS-6518 Cloud',t:'Dr. Shraddha Masih',r:'LAB-01',tp:'lab'},{s:'LAB CS-5618 Net. Security',t:'Mr. Hitesh Ninama ©',r:'LAB-02',tp:'lab'}],Wednesday:[null,{s:'CS-6518 Cloud Computing',t:'Dr. Shraddha Masih',r:'MMT-03',tp:'theory'},{s:'CS-6313 SW Testing & QA',t:'Dr. Sanjay Tanwani',r:'MMT-03',tp:'theory'},{s:'CS-5319/5618 Elective',t:'(Elective)',r:'MMT-03',tp:'theory'},{s:'CS-6718 Big Data',t:'Ms. Sunita Gaur',r:'MMT-03',tp:'theory'},{s:'LAB CS-5618 Net. Security',t:'Mr. Hitesh Ninama ©',r:'LAB-02',tp:'lab'},null],Thursday:[null,{s:'CS-6518 Cloud Computing',t:'Dr. Shraddha Masih',r:'MMT-03',tp:'theory'},{s:'CS-6313 SW Testing & QA',t:'Dr. Sanjay Tanwani',r:'MMT-03',tp:'theory'},{s:'CS-5319/5618 Elective',t:'(Elective)',r:'MMT-03',tp:'theory'},{s:'CS-6718 Big Data',t:'Ms. Sunita Gaur',r:'MMT-03',tp:'theory'},{s:'LAB CS-6313 SW Testing',t:'Dr. Sanjay Tanwani',r:'LAB-07',tp:'lab'},{s:'LAB CS-6313 SW Testing',t:'Dr. Sanjay Tanwani',r:'LAB-07',tp:'lab'}],Friday:[{s:'LAB CS-6718 Big Data',t:'Ms. Sunita Gaur',r:'LAB-02',tp:'lab'},{s:'CS-6226 Adv. Algorithms',t:'Dr. Anand Singh Jalal',r:'MMT-03',tp:'theory'},{s:'CS-6518 Cloud Computing',t:'Dr. Shraddha Masih',r:'MMT-03',tp:'theory'},null,{s:'CS-6718 Big Data',t:'Ms. Sunita Gaur',r:'MMT-03',tp:'theory'},{s:'LAB CS-6226 Adv. Algo',t:'Dr. Anand Singh Jalal',r:'LAB-02',tp:'lab'},{s:'LAB CS-6226 Adv. Algo',t:'Dr. Anand Singh Jalal',r:'LAB-02',tp:'lab'}],Saturday:[{s:'LAB CS-6718 Big Data',t:'Ms. Sunita Gaur',r:'LAB-02',tp:'lab'},{s:'CS-6226 Adv. Algorithms',t:'Dr. Anand Singh Jalal',r:'MMT-03',tp:'theory'},{s:'CS-6518 Cloud Computing',t:'Dr. Shraddha Masih',r:'MMT-03',tp:'theory'},null,{s:'LAB CS-6226 Adv. Algo',t:'Dr. Shraddha Masih',r:'LAB-02',tp:'lab'},{s:'LAB CS-6226 Adv. Algo',t:'Dr. Shraddha Masih',r:'LAB-02',tp:'lab'},null]}},
+bca6a:{title:'BCA 6th Semester — Batch A (F-01)',slots:['9:30–10:30','10:30–11:30','11:30–12:30','12:30–1:30','2:00–3:00','3:00–4:00'],days:{Monday:[null,null,{s:'CS-2520 Intro to Cloud',t:'Mr. Chetan Awasthi',r:'F-01',tp:'theory'},{s:'CS-4712 Data Science',t:'Ms. Megha Patidar',r:'F-01',tp:'theory'},null,null],Tuesday:[null,null,{s:'CS-2520 Intro to Cloud',t:'Mr. Chetan Awasthi',r:'F-01',tp:'theory'},{s:'CS-4712 Data Science',t:'Ms. Megha Patidar',r:'F-01',tp:'theory'},{s:'LAB CS-4224 Python',t:'Dr. Deepika Rai',r:'LAB-09',tp:'lab'},{s:'LAB CS-4224 Python',t:'Dr. Deepika Rai',r:'LAB-09',tp:'lab'}],Wednesday:[null,null,{s:'CS-2520 Cloud Computing',t:'Mr. Chetan Awasthi',r:'F-01',tp:'theory'},{s:'CS-4224 Python Programming',t:'Mr. Ajay Umale (VF)',r:'F-01',tp:'theory'},{s:'LAB CS-4224 Python',t:'Dr. Deepika Rai',r:'LAB-09',tp:'lab'},{s:'LAB CS-4224 Python',t:'Dr. Deepika Rai',r:'LAB-09',tp:'lab'}],Thursday:[null,null,{s:'CS-2520 Cloud Computing',t:'Mr. Chetan Awasthi',r:'F-01',tp:'theory'},{s:'CS-4224 Python Programming',t:'Mr. Ajay Umale (VF)',r:'F-01',tp:'theory'},null,null],Friday:[null,null,{s:'CS-4712 Data Science',t:'Ms. Megha Patidar',r:'F-01',tp:'theory'},{s:'CS-4224 Python Programming',t:'Mr. Ajay Umale (VF)',r:'F-01',tp:'theory'},null,null],Saturday:[null,null,{s:'CS-4712 Data Science',t:'Ms. Megha Patidar',r:'F-01',tp:'theory'},{s:'CS-4224 Python Programming',t:'Mr. Ajay Umale (VF)',r:'F-01',tp:'theory'},null,null]}},
+mca2b:{title:'MCA 2nd Semester — Batch B (LT-02)',slots:['10:30–11:30','11:30–12:30','12:30–1:30','LUNCH','2:00–3:00','3:00–4:00','4:00–5:00'],days:{Monday:[{s:'CS-5613 CN',t:'Dr. Preeti Saxena',r:'LT-02',tp:'theory'},{s:'CS-4305 SE',t:'Dr. Ugrasen Suman',r:'LT-02',tp:'theory'},{s:'CS-5216 DAA',t:'Dr. Deepak Abhyankar',r:'LT-02',tp:'theory'},null,{s:'LAB CS-5617 IWT',t:'Ms. Anshika Jain (JRF)',r:'LAB-07',tp:'lab'},{s:'LAB CS-5617 IWT',t:'Ms. Anshika Jain (JRF)',r:'LAB-07',tp:'lab'},null],Tuesday:[{s:'CS-5617 IWT',t:'Dr. Ajay Tiwari',r:'LT-02',tp:'theory'},{s:'CS-4305 SE',t:'Dr. Ugrasen Suman',r:'LT-02',tp:'theory'},{s:'CS-5216 DAA',t:'Dr. Deepak Abhyankar',r:'LT-02',tp:'theory'},null,{s:'CS-4405 DBMS',t:'Dr. Tarjani Sevak',r:'LT-02',tp:'theory'},{s:'LAB CS-4405 DBMS',t:'Dr. Tarjani Sevak',r:'LAB-07',tp:'lab'},{s:'LAB CS-4405 DBMS',t:'Dr. Tarjani Sevak',r:'LAB-07',tp:'lab'}],Wednesday:[{s:'CS-5617 IWT',t:'Dr. Ajay Tiwari',r:'LT-02',tp:'theory'},{s:'CS-4305 SE',t:'Dr. Ugrasen Suman',r:'LT-02',tp:'theory'},{s:'CS-5216 DAA',t:'Dr. Deepak Abhyankar',r:'LT-02',tp:'theory'},null,{s:'LAB CS-5617 IWT',t:'Ms. Anshika Jain (JRF)',r:'LAB-07',tp:'lab'},{s:'LAB CS-5617 IWT',t:'Ms. Anshika Jain (JRF)',r:'LAB-07',tp:'lab'},null],Thursday:[{s:'CS-5617 IWT',t:'Dr. Ajay Tiwari',r:'LT-02',tp:'theory'},{s:'CS-4305 SE',t:'Dr. Ugrasen Suman',r:'LT-02',tp:'theory'},{s:'CS-5613 CN',t:'Dr. Preeti Saxena',r:'LT-02',tp:'theory'},null,{s:'CS-4405 DBMS',t:'Dr. Tarjani Sevak',r:'LT-02',tp:'theory'},null,null],Friday:[{s:'CS-5617 IWT',t:'Dr. Ajay Tiwari',r:'LT-02',tp:'theory'},{s:'CS-5613 CN',t:'Dr. Preeti Saxena',r:'LT-02',tp:'theory'},{s:'CS-4405 DBMS',t:'Dr. Tarjani Sevak',r:'LT-02',tp:'theory'},null,{s:'LAB CS-5216 DAA',t:'Dr. Deepak Abhyankar',r:'LAB-07',tp:'lab'},{s:'LAB CS-5216 DAA',t:'Dr. Deepak Abhyankar',r:'LAB-07',tp:'lab'},null],Saturday:[{s:'CS-5216 DAA',t:'Dr. Deepak Abhyankar',r:'LT-02',tp:'theory'},{s:'CS-5613 CN',t:'Dr. Preeti Saxena',r:'LT-02',tp:'theory'},{s:'CS-4405 DBMS',t:'Dr. Tarjani Sevak',r:'LT-02',tp:'theory'},null,{s:'LAB CS-4405 DBMS',t:'Dr. Tarjani Sevak',r:'LAB-07',tp:'lab'},{s:'LAB CS-4405 DBMS',t:'Dr. Tarjani Sevak',r:'LAB-07',tp:'lab'},null]}}
+};
+
+const REPORT_DATA=[{roll:'MCA2024001',name:'Aarav Sharma',total:45,present:42,absent:2,leave:1},{roll:'MCA2024002',name:'Priya Patel',total:45,present:40,absent:4,leave:1},{roll:'MCA2024003',name:'Rahul Verma',total:45,present:32,absent:11,leave:2},{roll:'MCA2024004',name:'Sneha Joshi',total:45,present:44,absent:1,leave:0},{roll:'MCA2024005',name:'Karan Malhotra',total:45,present:33,absent:10,leave:2},{roll:'MCA2024006',name:'Divya Gupta',total:45,present:41,absent:3,leave:1},{roll:'MCA2024007',name:'Amit Soni',total:45,present:38,absent:6,leave:1},{roll:'MCA2024008',name:'Pooja Mishra',total:45,present:29,absent:14,leave:2},{roll:'MCA2024009',name:'Vikram Yadav',total:45,present:43,absent:2,leave:0},{roll:'MCA2024010',name:'Nisha Tiwari',total:45,present:39,absent:5,leave:1},{roll:'MCA2024011',name:'Siddharth Jain',total:45,present:36,absent:8,leave:1},{roll:'MCA2024012',name:'Ananya Dubey',total:45,present:45,absent:0,leave:0}];
+
+let attData={};
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const now=new Date();
+  document.getElementById('currentDate').textContent=now.toLocaleDateString('en-IN',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+  document.getElementById('attDate').value=now.toISOString().split('T')[0];
+  document.getElementById('rptFrom').value='2026-01-01';
+  document.getElementById('rptTo').value=now.toISOString().split('T')[0];
+  generateReport();
+  renderTimetable();
+});
+
+function switchTab(name,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+  btn.classList.add('active');
+}
+function updateSections(){
+  const d=document.getElementById('deptSel').value;
+  const s=document.getElementById('sectionSel');
+  s.innerHTML='<option value="">Select Section</option>';
+  document.getElementById('subjectSel').innerHTML='<option>Select Subject</option>';
+  if(d&&SECTIONS[d]) SECTIONS[d].forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o);});
+}
+function updateSubjects(){
+  const d=document.getElementById('deptSel').value;
+  const sec=document.getElementById('sectionSel').value;
+  const sel=document.getElementById('subjectSel');
+  sel.innerHTML='<option>Select Subject</option>';
+  const list=SUBJECTS[d+'_'+sec]||[];
+  if(list.length) list.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o);});
+  else ['Theory Subject A','Theory Subject B','Lab Subject A'].forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o);});
+}
+function loadStudents(){
+  const d=document.getElementById('deptSel').value;
+  const s=document.getElementById('sectionSel').value;
+  if(!d||!s){alert('Please select Department and Section');return;}
+  const students=STUDENTS[d+'_'+s]||DEF_STUDENTS;
+  attData={};
+  const tbody=document.getElementById('studentTable');
+  tbody.innerHTML='';
+  students.forEach((st,i)=>{
+    attData[st.roll]='P';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="color:var(--muted);font-size:12px">${i+1}</td><td class="roll">${st.roll}</td><td style="font-weight:500">${st.name}</td><td><div class="att-btns"><button class="att-btn P selected" onclick="setStatus('${st.roll}','P',this)">P</button><button class="att-btn A" onclick="setStatus('${st.roll}','A',this)">A</button><button class="att-btn L" onclick="setStatus('${st.roll}','L',this)">L</button></div></td><td id="stat_${st.roll}"><span style="color:var(--green);font-weight:600;font-size:12px">Present</span></td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('studentPanel').style.display='block';
+  updateCount();
+  document.getElementById('saveMsg').style.display='none';
+  document.getElementById('studentPanel').scrollIntoView({behavior:'smooth'});
+}
+function setStatus(roll,status,btn){
+  attData[roll]=status;
+  btn.closest('tr').querySelectorAll('.att-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  const c={P:'var(--green)',A:'var(--red)',L:'var(--yellow)'};
+  const l={P:'Present',A:'Absent',L:'Leave'};
+  document.getElementById('stat_'+roll).innerHTML=`<span style="color:${c[status]};font-weight:600;font-size:12px">${l[status]}</span>`;
+  updateCount();
+}
+function markAll(s){
+  Object.keys(attData).forEach(r=>attData[r]=s);
+  document.querySelectorAll('.att-btns').forEach(w=>{w.querySelectorAll('.att-btn').forEach(b=>{b.classList.remove('selected');if(b.classList.contains(s))b.classList.add('selected');});});
+  const c={P:'var(--green)',A:'var(--red)',L:'var(--yellow)'};
+  const l={P:'Present',A:'Absent',L:'Leave'};
+  Object.keys(attData).forEach(r=>{const el=document.getElementById('stat_'+r);if(el)el.innerHTML=`<span style="color:${c[s]};font-weight:600;font-size:12px">${l[s]}</span>`;});
+  updateCount();
+}
+function updateCount(){
+  const v=Object.values(attData);
+  const p=v.filter(x=>x==='P').length,a=v.filter(x=>x==='A').length,l=v.filter(x=>x==='L').length;
+  document.getElementById('countDisplay').innerHTML=`<span style="color:var(--green)">✅ ${p} Present</span> &nbsp; <span style="color:var(--red)">❌ ${a} Absent</span> &nbsp; <span style="color:var(--yellow)">⚡ ${l} Leave</span>`;
+}
+function saveAttendance(){
+  const v=Object.values(attData);
+  const p=v.filter(x=>x==='P').length,a=v.filter(x=>x==='A').length;
+  const msg=document.getElementById('saveMsg');
+  msg.textContent=`✅ Attendance saved! ${p} Present, ${a} Absent — ${document.getElementById('attDate').value} · ${document.getElementById('timeSel').value}`;
+  msg.style.display='block';
+  setTimeout(()=>msg.style.display='none',5000);
+}
+function renderTimetable(){
+  const key=document.getElementById('ttSel').value;
+  const tt=TT[key]||TT.mca2a;
+  const days=Object.keys(tt.days);
+  let h=`<div style="font-family:'Space Mono',monospace;font-size:12px;color:var(--accent);margin-bottom:1rem;">${tt.title} &nbsp;<span style="color:var(--muted);font-size:11px;">Jan–Jun 2026</span></div>`;
+  h+='<table class="tt-table"><thead><tr><th>Day \\ Time</th>';
+  tt.slots.forEach(s=>h+=`<th>${s}</th>`);
+  h+='</tr></thead><tbody>';
+  days.forEach(day=>{
+    h+=`<tr><td class="day-cell">${day}</td>`;
+    const slots=tt.days[day];
+    slots.forEach((c,i)=>{
+      if(tt.slots[i]==='LUNCH'){h+=`<td style="background:rgba(255,214,0,.04);text-align:center;"><div style="font-size:10px;color:var(--yellow);font-family:'Space Mono',monospace;">LUNCH</div></td>`;return;}
+      if(!c){h+='<td></td>';return;}
+      h+=`<td><div class="tt-cell ${c.tp}"><div class="tt-subject">${c.s}</div><div class="tt-teacher">${c.t}</div><div class="tt-room">${c.r}</div></div></td>`;
+    });
+    h+='</tr>';
+  });
+  h+='</tbody></table>';
+  h+=`<div style="margin-top:1rem;display:flex;gap:16px;font-size:11px;"><span><span style="display:inline-block;width:10px;height:10px;background:rgba(0,212,255,.3);border-left:2px solid var(--accent);margin-right:4px;"></span>Theory Class</span><span><span style="display:inline-block;width:10px;height:10px;background:rgba(255,107,53,.3);border-left:2px solid var(--accent2);margin-right:4px;"></span>Lab / Practical</span></div>`;
+  document.getElementById('ttContainer').innerHTML=h;
+}
+function generateReport(){
+  const tbody=document.getElementById('reportBody');
+  if(!tbody)return;
+  let below=0;
+  tbody.innerHTML='';
+  REPORT_DATA.forEach(s=>{
+    const pct=(s.present/s.total*100).toFixed(1);
+    const isBelow=parseFloat(pct)<75;
+    if(isBelow)below++;
+    const color=parseFloat(pct)>=75?'var(--green)':parseFloat(pct)>=60?'var(--yellow)':'var(--red)';
+    const tr=document.createElement('tr');
+    if(isBelow)tr.className='danger-row';
+    tr.innerHTML=`<td class="roll">${s.roll}</td><td style="font-weight:500">${s.name}</td><td style="text-align:center">${s.total}</td><td style="text-align:center;color:var(--green)">${s.present}</td><td style="text-align:center;color:var(--red)">${s.absent}</td><td style="text-align:center;color:var(--yellow)">${s.leave}</td><td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-wrap"><div class="progress-bar" style="width:${pct}%;background:${color}"></div></div><span style="color:${color};font-family:'Space Mono',monospace;font-size:12px;min-width:42px">${pct}%</span></div></td><td>${isBelow?'<span class="badge" style="background:rgba(255,23,68,.1);color:var(--red);border:1px solid rgba(255,23,68,.3)">⚠ Detained</span>':'<span class="badge" style="background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.3)">✓ OK</span>'}</td>`;
+    tbody.appendChild(tr);
+  });
+  const el=document.getElementById('belowCount');
+  if(el)el.textContent=below;
+}
+</script>
+</body>
+</html>
