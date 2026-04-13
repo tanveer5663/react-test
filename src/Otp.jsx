@@ -6,7 +6,7 @@ function Otp() {
   const [otp, setOtp] = React.useState([]);
 
   const handleChange = (element, index) => {
-    // console.log(element, index);
+  
     if (element >= "0" && element <= "9") {
       setOtp((prev) => {
         const newOtp = [...prev];
